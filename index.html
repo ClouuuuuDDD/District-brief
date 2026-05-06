@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>District (by Zomato) - Strategic Outreach Deck</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Space+Mono:wght@400;600&family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pixel: {
+                            black: '#585856',
+                            white: '#FFFFFF',
+                            bg: '#F8F8F8',
+                            grid: '#E5E5E5',
+                            pink: '#7F3DE8',
+                            green: '#0DB14B',
+                            yellow: '#FDB812',
+                            blue: '#00A9DC'
+                        }
+                    },
+                    fontFamily: {
+                        pixel: ['"Press Start 2P"', 'monospace'],
+                        body: ['"Space Mono"', 'monospace'],
+                        data: ['"VT323"', 'monospace']
+                    },
+                    borderWidth: {
+                        '4': '4px',
+                        '6': '6px',
+                        '12': '12px'
+                    },
+                    boxShadow: {
+                        'pixel': '6px 6px 0px #585856',
+                        'pixel-pink': '6px 6px 0px #7F3DE8',
+                        'pixel-hover': '8px 8px 0px #585856'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --pixel-black: #585856;
+            --pixel-white: #FFFFFF;
+            --pixel-bg: #F8F8F8;
+            --pixel-grid: #E5E5E5;
+            --pixel-pink: #7F3DE8;
+            --pixel-green: #0DB14B;
+            --pixel-yellow: #FDB812;
+            --pixel-blue: #00A9DC;
+        }
+
+        body {
+            background-color: var(--pixel-bg);
+            background-image: 
+                linear-gradient(var(--pixel-grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--pixel-grid) 1px, transparent 1px);
+            background-size: 24px 24px;
+            background-position: center;
+            color: var(--pixel-black);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Base Components */
+        .card-pixel {
+            border: 4px solid var(--pixel-black);
+            box-shadow: 6px 6px 0px var(--pixel-black);
+            border-radius: 0;
+        }
+
+        .shadow-pixel {
+            box-shadow: 6px 6px 0px var(--pixel-black);
+        }
+
+        /* Matrix Grids */
+        .matrix-bg {
+            position: relative;
+        }
+        .matrix-bg::before {
+            content: ''; position: absolute;
+            top: 50%; left: 0; right: 0;
+            border-top: 2px dashed rgba(229,229,229,0.5);
+            transform: translateY(-50%);
+        }
+        .matrix-bg::after {
+            content: ''; position: absolute;
+            left: 50%; top: 0; bottom: 0;
+            border-left: 2px dashed rgba(229,229,229,0.5);
+            transform: translateX(-50%);
+        }
+
+        .matrix-marker {
+            position: absolute;
+            width: 24px; height: 24px;
+            border: 4px solid var(--pixel-black);
+            border-radius: 0;
+            transform: translate(-50%, 50%) scale(0);
+        }
+        .matrix-label {
+            position: absolute;
+            bottom: -32px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--pixel-white);
+            border: 2px solid var(--pixel-black);
+            padding: 6px 10px;
+            font-family: 'VT323', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+            max-width: 120px;
+            text-align: center;
+            z-index: 20;
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 500ms cubic-bezier(0.25, 1, 0.5, 1), transform 500ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .chart-bar, .h-bar {
+            width: 0;
+            transition: width 1000ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .visible .chart-bar, .visible .h-bar {
+            width: var(--target-width);
+        }
+
+        .v-bar {
+            height: 0;
+            transform-origin: bottom;
+            transition: height 1000ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .visible .v-bar {
+            height: var(--target-height);
+        }
+
+        .pie-chart {
+            transform: scale(0) rotate(-90deg);
+            transition: transform 1000ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+        .visible .pie-chart {
+            transform: scale(1) rotate(0deg);
+        }
+
+        .visible .matrix-marker {
+            transform: translate(-50%, 50%) scale(1);
+            transition: transform 500ms cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        /* Ticker */
+        @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .ticker-content {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 25s linear infinite;
+        }
+        .ticker-wrap:hover .ticker-content {
+            animation-play-state: paused;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            .reveal, .chart-bar, .h-bar, .v-bar, .pie-chart, .matrix-marker, .ticker-content {
+                transition: none !important;
+                animation: none !important;
+                transform: none !important;
+                opacity: 1 !important;
+            }
+            .chart-bar, .h-bar { width: var(--target-width) !important; }
+            .v-bar { height: var(--target-height) !important; }
+            .matrix-marker { transform: translate(-50%, 50%) scale(1) !important; }
+        }
+    </style>
+</head>
+<body class="font-body text-pixel-black">
+
+    <!-- Scroll Progress -->
+    <div id="scroll-progress" class="fixed top-0 left-0 h-[6px] bg-pixel-pink z-[60] w-0"></div>
+
+    <!-- SECTION 1: HERO & HOOK -->
+    <section id="hero-intro" class="w-full max-w-[1280px] mx-auto min-h-screen flex flex-col justify-center relative pb-16">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center px-6 py-20 md:px-16 lg:px-24 flex-grow reveal delay-0">
+            <!-- Left Column -->
+            <div class="lg:col-span-5">
+                <h1 class="font-pixel text-3xl md:text-5xl uppercase mb-6 leading-tight">
+                    <span class="bg-pixel-pink text-white px-4 py-2 border-4 border-pixel-black inline-block transform -rotate-2">District</span><br>
+                    <span class="mt-4 inline-block">Strategic Outreach</span>
+                </h1>
+                <p class="font-body text-lg leading-relaxed text-gray-800">
+                    <strong>Hi, I'm Kunj — and here's what stands out about District:</strong><br><br>
+                    You're building India's first unified "going out" super-app by leveraging Zomato’s <strong>50M+ MAU</strong> and <strong>100K+ restaurant network</strong>. With exclusive festival partnerships, AI-curated itineraries, and a seamless dining + events flow, you're solving the fragmentation of social planning.<br><br>
+                    The next unlock is evolving from booking utility to <strong>AI-Powered Social Concierge</strong> — owning the entire weekend itinerary.
+                </p>
+            </div>
+
+            <!-- Right Column -->
+            <div class="lg:col-span-7 relative reveal delay-[100ms]">
+                <div class="card-pixel p-8 flex flex-col gap-8 bg-white relative">
+                    <!-- Stamp -->
+                    <div class="absolute -right-8 md:-right-16 -top-6 bg-pixel-yellow text-black font-pixel text-[10px] uppercase px-3 py-1 border-4 border-pixel-black rotate-12 shadow-pixel z-20">
+                        SOCIAL OS
+                    </div>
+                    
+                    <!-- Bar 1 -->
+                    <div class="w-full bg-pixel-grid h-[56px] border-4 border-pixel-black relative">
+                        <div class="chart-bar h-full bg-pixel-pink flex items-center px-4" style="--target-width: 100%;">
+                            <span class="font-data text-xl text-white whitespace-nowrap">50M+ Zomato MAU</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bar 2 -->
+                    <div class="w-full bg-pixel-grid h-[56px] border-4 border-pixel-black relative">
+                        <div class="chart-bar h-full bg-pixel-black flex items-center px-4" style="--target-width: 70%; transition-delay: 200ms;">
+                            <span class="font-data text-xl text-white whitespace-nowrap">100K+ Restaurants</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Bar 3 -->
+                    <div class="w-full bg-pixel-grid h-[56px] border-4 border-pixel-black relative">
+                        <div class="chart-bar h-full bg-pixel-pink flex items-center px-4" style="--target-width: 50%; transition-delay: 400ms;">
+                            <span class="font-data text-xl text-white whitespace-nowrap">Exclusive Events</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ticker -->
+        <div class="w-full border-t-4 border-b-4 border-pixel-black bg-pixel-black text-white py-3 overflow-hidden ticker-wrap absolute bottom-0">
+            <div class="ticker-content font-pixel text-[10px] uppercase tracking-widest">
+                Unified App Launch Q4 2025 • Exclusive Festival Rights Q1 2026 • AI Curator Q2 2026 • 50M+ MAU • 100K+ Restaurants • 
+                Unified App Launch Q4 2025 • Exclusive Festival Rights Q1 2026 • AI Curator Q2 2026 • 50M+ MAU • 100K+ Restaurants • 
+                Unified App Launch Q4 2025 • Exclusive Festival Rights Q1 2026 • AI Curator Q2 2026 • 50M+ MAU • 100K+ Restaurants • 
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: USER ANALYSIS -->
+    <section id="user-analysis" class="w-full bg-pixel-bg py-24 border-b-4 border-pixel-black">
+        <div class="max-w-[1280px] mx-auto px-6 md:px-16 lg:px-24">
+            <div class="reveal delay-0 mb-12">
+                <h2 class="font-pixel text-2xl md:text-4xl uppercase mb-6 text-pixel-black">USER ANALYSIS</h2>
+                <p class="font-body text-lg leading-relaxed text-gray-800 max-w-3xl">District's base is young, spontaneous, and social. ~75% of users are aged 18-30; ~50% book dining, ~30% events. The unlock is tailoring the experience by segment.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 relative z-10">
+                
+                <!-- Chart 1: Pie -->
+                <div class="card-pixel p-[40px] md:p-[64px] min-h-[360px] bg-white relative reveal delay-[0ms] flex flex-col items-center justify-center">
+                    <h3 class="font-pixel text-sm uppercase absolute top-6 left-6 z-20">Age Mix</h3>
+                    <div class="pie-chart w-[200px] h-[200px] border-4 border-pixel-black rounded-none relative shadow-pixel shrink-0 mt-8 md:mt-0" style="background: conic-gradient(#7F3DE8 0% 75%, #585856 75% 95%, #F8F8F8 95% 100%);">
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[70px] h-[70px] bg-white border-4 border-pixel-black flex items-center justify-center z-10 p-2">
+                            <span class="font-data text-[14px] uppercase text-center leading-tight">AGE<br>MIX</span>
+                        </div>
+                        <!-- Desktop Leader Lines & Labels -->
+                        <div class="hidden md:flex absolute top-[160px] left-[170px] font-data text-sm items-center gap-2">
+                            <div class="w-12 h-[3px] bg-pixel-pink"></div>
+                            <span class="font-bold text-pixel-pink whitespace-nowrap text-base">18-30: 75%</span>
+                        </div>
+                        <div class="hidden md:flex absolute top-[40px] right-[180px] font-data text-sm items-center gap-2 flex-row-reverse">
+                            <div class="w-12 h-[2px] bg-pixel-black"></div>
+                            <span class="text-pixel-black whitespace-nowrap text-base">30-45: 20%</span>
+                        </div>
+                        <div class="hidden md:flex absolute top-[0px] right-[150px] font-data text-sm items-center gap-2 flex-row-reverse">
+                            <div class="w-16 h-[2px] bg-pixel-black"></div>
+                            <span class="text-pixel-black whitespace-nowrap text-base">Other: 5%</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Mobile Legend -->
+                    <div class="flex flex-col gap-3 mt-12 md:hidden w-full px-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-pixel-pink border-2 border-pixel-black"></div>
+                            <span class="font-data text-lg font-bold text-pixel-pink">18-30: 75%</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-pixel-black border-2 border-pixel-black"></div>
+                            <span class="font-data text-lg text-pixel-black">30-45: 20%</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 bg-pixel-bg border-2 border-pixel-black"></div>
+                            <span class="font-data text-lg text-pixel-black">Other: 5%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Vertical Bar -->
+                <div class="card-pixel p-10 min-h-[360px] bg-white relative reveal delay-[100ms] flex items-end justify-around pb-16">
+                    <h3 class="font-pixel text-sm uppercase absolute top-6 left-6">Activity Split</h3>
+                    <div class="w-full absolute bottom-16 left-0 border-b-4 border-pixel-black z-0"></div>
+                    
+                    <div class="relative w-[48px] md:w-[64px] h-[200px] z-10 flex items-end">
+                        <div class="v-bar w-full bg-pixel-bg border-t-4 border-l-4 border-r-4 border-pixel-black" style="--target-height: 40%; transition-delay: 200ms;"></div>
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 font-data text-xl">20%</div>
+                        <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-data text-sm uppercase">Nightlife</div>
+                    </div>
+                    
+                    <div class="relative w-[48px] md:w-[64px] h-[200px] z-10 flex items-end">
+                        <div class="v-bar w-full bg-pixel-black border-t-4 border-l-4 border-r-4 border-pixel-black" style="--target-height: 60%; transition-delay: 400ms;"></div>
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 font-data text-xl">30%</div>
+                        <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-data text-sm uppercase">Events</div>
+                    </div>
+                    
+                    <div class="relative w-[48px] md:w-[64px] h-[200px] z-10 flex items-end">
+                        <div class="v-bar w-full bg-pixel-pink border-t-4 border-l-4 border-r-4 border-pixel-black" style="--target-height: 100%; transition-delay: 600ms;"></div>
+                        <div class="absolute -top-8 left-1/2 -translate-x-1/2 font-data text-xl">50%</div>
+                        <div class="absolute -bottom-8 left-1/2 -translate-x-1/2 font-data text-sm uppercase">Dining</div>
+                    </div>
+                </div>
+
+                <!-- Chart 3: Histogram -->
+                <div class="card-pixel p-10 min-h-[320px] bg-white relative reveal delay-[200ms] flex flex-col justify-end pt-20">
+                    <h3 class="font-pixel text-sm uppercase absolute top-6 left-6">Pain Priority</h3>
+                    <div class="border-l-4 border-pixel-black pl-4 py-2 w-full flex flex-col gap-6">
+                        
+                        <div class="relative w-full">
+                            <div class="font-data text-xs uppercase font-bold mb-1">Ease of Booking</div>
+                            <div class="w-full bg-pixel-grid h-[40px] border-4 border-pixel-black">
+                                <div class="h-bar h-full bg-pixel-pink flex items-center px-3" style="--target-width: 70%; transition-delay: 200ms;">
+                                    <span class="font-data text-xl text-white">70%</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="relative w-full">
+                            <div class="font-data text-xs uppercase font-bold mb-1">Price Transparency</div>
+                            <div class="w-full bg-pixel-grid h-[40px] border-4 border-pixel-black">
+                                <div class="h-bar h-full bg-pixel-black flex items-center px-3" style="--target-width: 65%; transition-delay: 400ms;">
+                                    <span class="font-data text-xl text-white">65%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative w-full">
+                            <div class="font-data text-xs uppercase font-bold mb-1">Exclusive Access</div>
+                            <div class="w-full bg-pixel-grid h-[40px] border-4 border-pixel-black">
+                                <div class="h-bar h-full bg-pixel-bg flex items-center px-3" style="--target-width: 60%; transition-delay: 600ms;">
+                                    <span class="font-data text-xl text-black">60%</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Chart 4: Matrix -->
+                <div class="card-pixel p-10 pt-12 pr-12 pb-16 pl-16 min-h-[420px] bg-white relative reveal delay-[300ms] flex flex-col">
+                    <h3 class="font-pixel text-sm uppercase absolute top-6 left-6 z-20 bg-white px-2 border-2 border-pixel-black">User Segments</h3>
+                    
+                    <div class="flex-grow aspect-square border-l-4 border-b-4 border-pixel-black matrix-bg mt-8 mx-auto w-full max-w-[300px] relative">
+                        <!-- Axis Labels -->
+                        <div class="absolute -bottom-8 left-0 font-data text-xs uppercase tracking-wide">Short Horizon</div>
+                        <div class="absolute -bottom-8 right-0 font-data text-xs uppercase tracking-wide">Long Horizon</div>
+                        <div class="absolute bottom-0 -left-8 font-data text-xs uppercase tracking-wide transform -rotate-90 origin-bottom-left whitespace-nowrap">Small Group</div>
+                        <div class="absolute top-0 -left-8 w-0 h-0">
+                            <div class="absolute top-0 right-0 font-data text-xs uppercase tracking-wide transform -rotate-90 origin-top-right whitespace-nowrap">Large Group</div>
+                        </div>
+
+                        <!-- Markers -->
+                        <div class="matrix-marker bg-pixel-pink" style="left: 30%; bottom: 30%; transition-delay: 300ms;">
+                            <div class="matrix-label">Spontaneous Planners</div>
+                        </div>
+                        
+                        <div class="matrix-marker bg-pixel-black" style="left: 70%; bottom: 60%; transition-delay: 450ms;">
+                            <div class="matrix-label">Experience Hunters</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-bg" style="left: 50%; bottom: 50%; transition-delay: 600ms;">
+                            <div class="matrix-label">Social Organizers</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-white" style="left: 80%; bottom: 80%; transition-delay: 750ms;">
+                            <div class="matrix-label">Venue Partners</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: COMPETITOR LANDSCAPE -->
+    <section id="competitor-landscape" class="w-full bg-pixel-black py-24 border-b-4 border-pixel-black text-white">
+        <div class="max-w-[1280px] mx-auto px-6 md:px-16 lg:px-24">
+            <div class="reveal delay-0 mb-16">
+                <h2 class="font-pixel text-2xl md:text-4xl uppercase mb-6 text-white">COMPETITOR LANDSCAPE</h2>
+                <p class="font-body text-lg leading-relaxed text-gray-300 max-w-3xl">District leads on <strong>Unified Experience</strong> and <strong>Zomato Synergy</strong>. BookMyShow wins on legacy ticketing scale. Paytm Insider competes on indie events. Dineout focuses on dining discounts.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Matrix Left -->
+                <div class="bg-white text-black card-pixel p-10 pt-12 pr-12 pb-16 pl-16 reveal delay-[100ms] flex justify-center items-center">
+                    <div class="aspect-square border-l-4 border-b-4 border-pixel-black matrix-bg w-full max-w-[400px] relative">
+                        <!-- Axis Labels -->
+                        <div class="absolute -bottom-8 left-0 font-data text-xs uppercase tracking-wide">Single Category</div>
+                        <div class="absolute -bottom-8 right-0 font-data text-xs uppercase tracking-wide">Multi-Category</div>
+                        <div class="absolute bottom-0 -left-8 font-data text-xs uppercase tracking-wide transform -rotate-90 origin-bottom-left whitespace-nowrap">Listing Only</div>
+                        <div class="absolute top-0 -left-8 w-0 h-0">
+                            <div class="absolute top-0 right-0 font-data text-xs uppercase tracking-wide transform -rotate-90 origin-top-right whitespace-nowrap">End-to-End Booking</div>
+                        </div>
+
+                        <!-- Markers -->
+                        <div class="matrix-marker bg-pixel-pink !w-10 !h-10 border-white shadow-[4px_4px_0_0_#585856] z-30" style="left: 85%; bottom: 85%; transition-delay: 200ms;">
+                            <div class="matrix-label font-bold text-pixel-pink border-pixel-pink">District</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-black z-20" style="left: 60%; bottom: 70%; transition-delay: 350ms;">
+                            <div class="matrix-label">BookMyShow</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-bg z-20" style="left: 40%; bottom: 60%; transition-delay: 500ms;">
+                            <div class="matrix-label">Paytm Insider</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-bg z-20" style="left: 30%; bottom: 40%; transition-delay: 650ms;">
+                            <div class="matrix-label">Dineout</div>
+                        </div>
+
+                        <div class="matrix-marker bg-pixel-white z-20" style="left: 20%; bottom: 20%; transition-delay: 800ms;">
+                            <div class="matrix-label">Instagram</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Badges Right -->
+                <div class="flex flex-col gap-6 justify-center reveal delay-[200ms]">
+                    
+                    <div class="bg-pixel-bg text-black p-6 card-pixel flex justify-between items-center hover:-translate-y-1 transition-transform cursor-default">
+                        <span class="font-pixel text-sm uppercase">Dining + Events Unified</span>
+                        <div class="font-data text-sm flex gap-4">
+                            <span class="text-gray-500">Others ⚠️</span>
+                            <span class="text-pixel-pink font-bold">District ✅</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-pixel-bg text-black p-6 card-pixel flex justify-between items-center hover:-translate-y-1 transition-transform cursor-default">
+                        <span class="font-pixel text-sm uppercase">AI Curation / Planning</span>
+                        <div class="font-data text-sm flex gap-4">
+                            <span class="text-gray-500">Others ⚠️</span>
+                            <span class="text-pixel-pink font-bold">District ✅</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-pixel-bg text-black p-6 card-pixel flex justify-between items-center hover:-translate-y-1 transition-transform cursor-default">
+                        <span class="font-pixel text-sm uppercase">Zomato Synergy (50M+)</span>
+                        <div class="font-data text-sm flex gap-4">
+                            <span class="text-gray-500">Others ⚠️</span>
+                            <span class="text-pixel-pink font-bold">District ✅</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: SWOT & DRIVERS -->
+    <section id="swot-analysis" class="w-full bg-pixel-bg py-24 border-b-4 border-pixel-black">
+        <div class="max-w-[1280px] mx-auto px-6 md:px-16 lg:px-24">
+            <h2 class="font-pixel text-2xl md:text-4xl uppercase mb-16 text-pixel-black reveal delay-0">STRATEGIC SWOT & DRIVERS</h2>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+                <!-- SWOT Matrix -->
+                <div class="grid grid-cols-2 border-4 border-pixel-black shadow-pixel bg-white reveal delay-[100ms] h-max">
+                    <div class="p-6 border-r-4 border-b-4 border-pixel-black" style="background-color: rgba(226,55,68,0.1);">
+                        <h3 class="font-pixel text-sm mb-4 uppercase text-pixel-pink">S - Strengths</h3>
+                        <ul class="font-body text-[14px] space-y-2 font-medium list-disc pl-5">
+                            <li>Zomato massive user base</li>
+                            <li>Unified dining + events</li>
+                            <li>Strong brand trust</li>
+                            <li>Data personalization</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="p-6 border-b-4 border-pixel-black" style="background-color: rgba(88,88,86,0.1);">
+                        <h3 class="font-pixel text-sm mb-4 uppercase text-pixel-black">W - Weaknesses</h3>
+                        <ul class="font-body text-[14px] space-y-2 font-medium list-disc pl-5">
+                            <li>Lower event brand recall vs BMS</li>
+                            <li>Unified flow glitches (early)</li>
+                            <li>Limited non-metro inventory</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6 border-r-4 border-pixel-black" style="background-color: rgba(248,248,248,0.5);">
+                        <h3 class="font-pixel text-sm mb-4 uppercase text-pixel-black">O - Opportunities</h3>
+                        <ul class="font-body text-[14px] space-y-2 font-medium list-disc pl-5">
+                            <li>Exclusive festival rights</li>
+                            <li>AI-curated itineraries</li>
+                            <li>Group planning tools</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-6" style="background-color: rgba(255,255,255,0.5);">
+                        <h3 class="font-pixel text-sm mb-4 uppercase text-pixel-black">T - Threats</h3>
+                        <ul class="font-body text-[14px] space-y-2 font-medium list-disc pl-5">
+                            <li>BMS UX improvements</li>
+                            <li>Regulatory fee changes</li>
+                            <li>Venue exclusivity deals</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Driver Cards -->
+                <div class="flex flex-col gap-8 reveal delay-[200ms]">
+                    
+                    <div class="card-pixel bg-white p-6 !border-l-[12px] !border-l-pixel-pink">
+                        <h4 class="font-pixel text-[14px] uppercase mb-2">🎮 User Driver</h4>
+                        <p class="font-body text-[15px] mb-3 font-bold text-black">"Want Seamless, End-to-End Planning with Transparency"</p>
+                        <div class="font-body text-[12px] text-gray-600 bg-pixel-bg p-3 border-2 border-gray-200">
+                            <strong class="text-pixel-pink">So What:</strong> Lead with "One App, Full Night Out" messaging and all-in pricing.
+                        </div>
+                    </div>
+
+                    <div class="card-pixel bg-white p-6 !border-l-[12px] !border-l-pixel-black">
+                        <h4 class="font-pixel text-[14px] uppercase mb-2">🕹️ Product Driver</h4>
+                        <p class="font-body text-[15px] mb-3 font-bold text-black">"Integration + AI Curation + Exclusive Access"</p>
+                        <div class="font-body text-[12px] text-gray-600 bg-pixel-bg p-3 border-2 border-gray-200">
+                            <strong class="text-pixel-black">So What:</strong> Refine AI recommendation engine to boost cross-category conversion.
+                        </div>
+                    </div>
+
+                    <div class="card-pixel bg-white p-6 !border-l-[12px] !border-l-pixel-bg">
+                        <h4 class="font-pixel text-[14px] uppercase mb-2">🎯 Market Driver</h4>
+                        <p class="font-body text-[15px] mb-3 font-bold text-black">"Experiential Economy Boom + Digital Ticketing Growth"</p>
+                        <div class="font-body text-[12px] text-gray-600 bg-pixel-bg p-3 border-2 border-gray-200">
+                            <strong class="text-pixel-black">So What:</strong> Scale inventory in high-growth categories like live music.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: INSIGHT & OPPORTUNITY ZONES -->
+    <section id="opportunity-zones" class="w-full bg-white py-24 border-b-4 border-pixel-black">
+        <div class="max-w-[1280px] mx-auto px-6 md:px-16 lg:px-24">
+            
+            <!-- Insight Box -->
+            <div class="relative card-pixel p-8 md:p-12 border-[6px] !border-pixel-pink w-full md:w-5/6 mx-auto mb-20 bg-pixel-bg reveal delay-0">
+                <div class="absolute -top-5 -right-5 md:-top-6 md:-right-6 bg-pixel-pink text-white font-pixel text-[12px] md:text-[14px] px-6 py-2 border-4 border-pixel-black shadow-pixel rotate-12 uppercase z-10 tracking-wider">
+                    KEY INSIGHT
+                </div>
+                <h2 class="font-pixel text-xl md:text-2xl leading-snug text-black mb-4">
+                    Moving from "Booking App" to<br>
+                    <span class="text-pixel-pink mt-2 inline-block">"AI-POWERED SOCIAL CONCIERGE"</span>
+                </h2>
+                <p class="font-body text-lg leading-relaxed text-gray-800">
+                    District has the potential to own the "social operating system" for urban India by leveraging Zomato’s dining dominance to solve fragmentation. The unlock is curating personalized, end-to-end itineraries while offering exclusive access and group coordination tools that legacy platforms cannot replicate.
+                </p>
+            </div>
+
+            <!-- Opportunity Cards -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-12 max-w-[1200px] mx-auto">
+                
+                <!-- Card 1 -->
+                <div class="card-pixel border-4 border-pixel-black p-8 bg-white flex flex-col reveal delay-[100ms]">
+                    <div class="text-5xl mb-6">🎮</div>
+                    <h3 class="font-pixel text-[18px] mb-4 uppercase leading-tight">AI SOCIAL CONCIERGE</h3>
+                    <div class="h-[4px] w-12 bg-pixel-black mb-4"></div>
+                    <p class="font-body text-[15px] mb-8 text-gray-700 flex-grow">End-to-end itinerary generation (dinner + show + afterparty) based on preferences, budget, and real-time availability.</p>
+                    <p class="font-body text-[13px] font-bold uppercase text-pixel-black">Position as: "Your Weekend, Sorted."</p>
+                </div>
+
+                <!-- Card 2 (Highlighted) -->
+                <div class="card-pixel border-[6px] !border-pixel-pink p-8 bg-white relative shadow-[8px_8px_0_0_#7F3DE8] z-10 flex flex-col reveal delay-[200ms]">
+                    <div class="absolute -top-5 left-1/2 -translate-x-1/2 bg-pixel-green text-white font-pixel text-[10px] px-6 py-1 border-4 border-pixel-black -rotate-3 shadow-pixel uppercase tracking-widest whitespace-nowrap">
+                        EXPLORE
+                    </div>
+                    <div class="text-5xl mb-6">🕹️</div>
+                    <h3 class="font-pixel text-[18px] mb-4 uppercase leading-tight text-pixel-pink">EXCLUSIVE ACCESS & DROPS</h3>
+                    <div class="h-[4px] w-12 bg-pixel-pink mb-4"></div>
+                    <p class="font-body text-[15px] mb-8 text-gray-700 flex-grow">Secure early-bird tickets, VIP upgrades, and member-only events to drive FOMO and retention. Partner with influencers for takeovers.</p>
+                    <p class="font-body text-[13px] font-bold uppercase text-pixel-pink">Create unique supply legacy players don't have.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card-pixel border-4 border-pixel-grid p-8 bg-white lg:transform lg:translate-y-16 flex flex-col reveal delay-[300ms]">
+                    <div class="text-5xl mb-6">🎯</div>
+                    <h3 class="font-pixel text-[18px] mb-4 uppercase leading-tight">GROUP PLANNING SUITE</h3>
+                    <div class="h-[4px] w-12 bg-pixel-black mb-4"></div>
+                    <p class="font-body text-[15px] mb-8 text-gray-700 flex-grow">Shared carts, poll-based decision making, and split-payment features to reduce friction for group outings.</p>
+                    <p class="font-body text-[13px] font-bold uppercase text-pixel-black">Increase Average Order Value (AOV) organically.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: CTA + CONTACT -->
+    <section id="contact-cta" class="w-full min-h-[80vh] bg-pixel-bg py-24 px-6 md:px-16 relative flex items-center justify-center">
+        <!-- Main Card -->
+        <div class="w-full max-w-4xl mx-auto card-pixel bg-white border-[6px] border-pixel-black pt-0 mt-16 reveal delay-[200ms] flex flex-col">
+            <div class="h-3 w-full bg-pixel-pink border-b-4 border-pixel-black flex-shrink-0"></div>
+            
+            <div class="p-8 md:p-16 flex flex-col items-center text-center flex-grow">
+                <h2 class="font-pixel text-2xl md:text-4xl leading-tight mb-8 text-pixel-black">Let's build the OS for going out.</h2>
+                <p class="font-body text-lg md:text-xl max-w-2xl mb-12 text-gray-800">
+                    I'm looking for a Growth or Product internship for Summer 2026, and would be excited to work on problems like this with your team.
+                </p>
+
+                <div class="w-full border-t-4 border-pixel-bg pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                    
+                    <!-- Contact Info -->
+                    <div class="border-l-[6px] border-pixel-green pl-6 py-2 text-left">
+                        <div class="font-pixel text-xl mb-2 text-pixel-black">KUNJ HARJAI</div>
+                        <a href="mailto:Kunj.24141@sscbs.du.ac.in" class="block font-body text-[16px] font-medium text-pixel-black hover:text-pixel-pink transition-colors">📧 Kunj.24141@sscbs.du.ac.in</a>
+                        <a href="tel:+919310929096" class="block font-body text-[16px] font-medium text-pixel-black hover:text-pixel-pink transition-colors mt-1">📞 +91 93 109 29 096</a>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex flex-col gap-4 w-full md:w-auto">
+                        <a href="https://www.linkedin.com/in/kunjharjai/" target="_blank" rel="noopener noreferrer" class="bg-pixel-black text-white font-pixel text-[10px] md:text-[12px] uppercase px-8 py-4 border-4 border-pixel-black shadow-pixel hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#585856] transition-all text-center inline-block">
+                            LinkedIn →
+                        </a>
+                        <a href="https://calendly.com/kunjharjai13/30min" target="_blank" rel="noopener noreferrer" class="bg-pixel-pink text-white font-pixel text-[10px] md:text-[12px] uppercase px-8 py-4 border-4 border-pixel-black shadow-pixel hover:-translate-y-1 hover:-translate-x-1 hover:shadow-[8px_8px_0_0_#585856] transition-all text-center inline-block">
+                            Schedule a Chat →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- JS Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Scroll Progress Bar
+            const progressBar = document.getElementById('scroll-progress');
+            window.addEventListener('scroll', () => {
+                const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (winScroll / height) * 100;
+                progressBar.style.width = scrolled + '%';
+            });
+
+            // Intersection Observer for Reveal Animations
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.15
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        // Optional: unobserve if you only want it to animate once
+                        // observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            const revealElements = document.querySelectorAll('.reveal');
+            revealElements.forEach(el => observer.observe(el));
+        });
+    </script>
+
+</body>
+</html>
